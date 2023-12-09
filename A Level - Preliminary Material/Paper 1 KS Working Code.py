@@ -21,6 +21,17 @@ def Main():
 
 class Puzzle():
     def __init__(self, *args):
+        """
+        Initialises the variables for the puzzle instance
+        Parameters
+        ----------
+        Args: Either a text file name (string) or a set of integers to generate puzzle
+
+        Returns
+        -------
+        None
+        """
+
         if len(args) == 1:
             self.__Score = 0
             self.__SymbolsLeft = 0
@@ -53,6 +64,16 @@ class Puzzle():
             self.__AllowedSymbols.append("T")
 
     def __LoadPuzzle(self, Filename):
+        """
+        Loads a txt puzzle file from saved files
+        Parameters
+        ----------
+        Filename: A string
+
+        Returns
+        -------
+        None
+        """
         try:
             with open(Filename) as f:
                 NoOfSymbols = int(f.readline().rstrip())
@@ -81,6 +102,16 @@ class Puzzle():
             print("Puzzle not loaded")
 
     def AttemptPuzzle(self):
+        """
+        Function run while user is solving puzzle, returns score
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        Score: A class attribute (integer)
+        """
         Finished = False
         while not Finished:
             self.DisplayPuzzle()
@@ -117,6 +148,17 @@ class Puzzle():
         return self.__Score
 
     def __GetCell(self, Row, Column):
+        """
+        Loads a txt puzzle file from saved files
+        Parameters
+        ----------
+        Row: Integer coordinate
+        Column: Integer coordinate
+
+        Returns
+        -------
+        Grid: Class attribute -> returns the specific cell at the index grid
+        """
         Index = (self.__GridSize - Row) * self.__GridSize + Column - 1
         if Index >= 0:
             return self.__Grid[Index]
@@ -124,6 +166,19 @@ class Puzzle():
             raise IndexError()
 
     def CheckforMatchWithPattern(self, Row, Column):
+        """
+        Checks if the letters in grid match any scoring pattern
+        Parameters
+        ----------
+        Row: Integer coordinate
+        Column: Integer coordinate
+
+        Returns
+        -------
+        10 -> If a match
+        0 -> Not a match
+
+        """
         for StartRow in range(Row + 2, Row - 1, -1):
             for StartColumn in range(Column - 2, Column + 1):
                 try:
@@ -155,18 +210,49 @@ class Puzzle():
         return 0
 
     def __GetSymbolFromUser(self):
+        """
+        Gets input symbol from user
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        Symbol: (string) user input
+        """
         Symbol = ""
         while not Symbol in self.__AllowedSymbols:
             Symbol = input("Enter symbol: ")
         return Symbol
 
     def __CreateHorizontalLine(self):
+        """
+        Creates a horizontal line
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        Line: The horizontal line (string)
+        """
         Line = "  "
         for Count in range(1, self.__GridSize * 2 + 2):
             Line = Line + "-"
         return Line
 
     def DisplayPuzzle(self):
+        """
+        Displays the puzzle to the user
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         print()
         if self.__GridSize < 10:
             print("  ", end='')
@@ -184,10 +270,33 @@ class Puzzle():
 
 class Pattern():
     def __init__(self, SymbolToUse, PatternString):
+        """
+        Pattern class init function
+        Parameters
+        ----------
+        SymbolToUse: (string)
+        PatternString: (string)
+
+        Returns
+        -------
+        None
+        """
         self.__Symbol = SymbolToUse
         self.__PatternSequence = PatternString
 
     def MatchesPattern(self, PatternString, SymbolPlaced):
+        """
+        Matches the pattern stored to the scoring patterns
+        Parameters
+        ----------
+        SymbolToUse: (string)
+        PatternString: (string)
+
+        Returns
+        -------
+        False: If pattern doesn't match it
+        True: If pattern matches
+        """
         if SymbolPlaced != self.__Symbol:
             return False
         for Count in range(0, len(self.__PatternSequence)):
@@ -199,46 +308,149 @@ class Pattern():
         return True
 
     def GetPatternSequence(self):
-      return self.__PatternSequence
+        """
+        A function to access the self.__Pattern sequence
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        PatternSequence: The pattern sequence
+        """
+        return self.__PatternSequence
 
 class Cell():
     def __init__(self):
+        """
+        Init function for cell class
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         self._Symbol = ""
         self.__SymbolsNotAllowed = []
 
     def GetSymbol(self):
+        """
+        Function to get the symbol of the current class instance
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        Symbol: Current symbol if not empty
+        "-": If empty
+        """
         if self.IsEmpty():
           return "-"
         else:
           return self._Symbol
     
     def IsEmpty(self):
+        """
+        Checks if cell is empty
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        True: If empty
+        False: If not empty
+        """
         if len(self._Symbol) == 0:
             return True
         else:
             return False
 
     def ChangeSymbolInCell(self, NewSymbol):
+        """
+        Change the symbol stored in the cell
+        Parameters
+        ----------
+        NewSymbol: Input symbol (string)
+
+        Returns
+        -------
+        None
+        """
         self._Symbol = NewSymbol
 
     def CheckSymbolAllowed(self, SymbolToCheck):
+        """
+        Checks if symbol is allowed from the list of symbols not allowed
+        Parameters
+        ----------
+        SymbolToCheck: (string) input symbol
+
+        Returns
+        -------
+        True: If item is not in SymbolsNotAllowed
+        False: If item is in SymbolsNotAllowed
+        """
         for Item in self.__SymbolsNotAllowed:
             if Item == SymbolToCheck:
                 return False
         return True
 
     def AddToNotAllowedSymbols(self, SymbolToAdd):
+        """
+        Adds symbol to not allowed symbols
+        Parameters
+        ----------
+        SymbolToAdd: (string)
+
+        Returns
+        -------
+        None
+        """
         self.__SymbolsNotAllowed.append(SymbolToAdd)
 
     def UpdateCell(self):
+        """
+        Updates Cell
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         pass
 
 class BlockedCell(Cell):
     def __init__(self):
+        """
+        Init function of Blocked Cell
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
         super(BlockedCell, self).__init__()
         self._Symbol = "@"
 
     def CheckSymbolAllowed(self, SymbolToCheck):
+        """
+        Checks if symbal is allowed
+        Parameters
+        ----------
+        SymbolToCheck: (string) Input symbol to check
+
+        Returns
+        -------
+        False:
+        """
         return False
 
 if __name__ == "__main__":

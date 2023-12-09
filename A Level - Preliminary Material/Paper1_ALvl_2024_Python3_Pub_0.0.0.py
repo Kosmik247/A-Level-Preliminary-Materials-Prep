@@ -20,6 +20,7 @@ def Main():
         Again = input("Do another puzzle? ").lower()
 
 class Puzzle():
+
     def __init__(self, *args):
         if len(args) == 1:
             self.__Score = 0
