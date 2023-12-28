@@ -7,6 +7,16 @@ import random
 import os
 
 def Main():
+    """
+    The main function that runs the puzzle game.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None"""
     Again = "y"
     Score = 0
     while Again == "y":
@@ -53,15 +63,36 @@ class Puzzle():
                 self.__Grid.append(C)
             self.__AllowedPatterns = []
             self.__AllowedSymbols = []
-            QPattern = Pattern("Q", "QQ**Q**QQ")
-            self.__AllowedPatterns.append(QPattern)
+            Q1Pattern = Pattern("Q", "QQ**Q**QQ")
+            self.__AllowedPatterns.append(Q1Pattern)
+            Q2Pattern = Pattern("Q", "*QQQ**Q*Q")
+            self.__AllowedPatterns.append(Q2Pattern)
+            Q3Pattern = Pattern("Q", "Q**QQQ**Q")
+            self.__AllowedPatterns.append(Q3Pattern)
+            Q4Pattern = Pattern("Q", "**Q**QQQQ")
+            self.__AllowedPatterns.append(Q4Pattern)
             self.__AllowedSymbols.append("Q")
             XPattern = Pattern("X", "X*X*X*X*X")
             self.__AllowedPatterns.append(XPattern)
             self.__AllowedSymbols.append("X")
-            TPattern = Pattern("T", "TTT**T**T")
-            self.__AllowedPatterns.append(TPattern)
+            T1Pattern = Pattern("T", "TTT**T**T")
+            self.__AllowedPatterns.append(T1Pattern)
+            T2Pattern = Pattern("T", "**TTT**TT")
+            self.__AllowedPatterns.append(T2Pattern)
+            T3Pattern = Pattern("T", "*T**TTT*T")
+            self.__AllowedPatterns.append(T3Pattern)
+            T4Pattern = Pattern("T", "T**T**TTT")
+            self.__AllowedPatterns.append(T4Pattern)
             self.__AllowedSymbols.append("T")
+            L1Pattern = Pattern("L", "L***LLLL*")
+            self.__AllowedPatterns.append(L1Pattern)
+            L2Pattern = Pattern("L", "LLL***LL*")
+            self.__AllowedPatterns.append(L2Pattern)
+            L3Pattern = Pattern("L", "LLLLL****")
+            self.__AllowedPatterns.append(L3Pattern)
+            L4Pattern = Pattern("L", "**LLLLL**")
+            self.__AllowedPatterns.append(L4Pattern)
+            self.__AllowedSymbols.append("L")
 
     def __LoadPuzzle(self, Filename):
         """
@@ -195,6 +226,7 @@ class Puzzle():
                     for P in self.__AllowedPatterns:
                         CurrentSymbol = self.__GetCell(Row, Column).GetSymbol()
                         if P.MatchesPattern(PatternString, CurrentSymbol):
+                            print(P)
                             self.__GetCell(StartRow, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
@@ -380,7 +412,9 @@ class Cell():
         -------
         None
         """
-        self._Symbol = NewSymbol
+        if self.IsEmpty():
+            self._Symbol = NewSymbol
+
 
     def CheckSymbolAllowed(self, SymbolToCheck):
         """
