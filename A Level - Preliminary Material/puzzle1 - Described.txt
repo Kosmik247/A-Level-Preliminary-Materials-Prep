@@ -1,0 +1,36 @@
+3 	# 3 Possible AllowedSymbols
+Q 	# List of letters letters allowed
+T
+X
+3 	# 3 Possible AllowedPatterns
+Q,QQ**Q**QQ
+X,X*X*X*X*X
+T,TTT**T**T
+5 	# Grid Size
+Q,Q	# First element is the grid fill, second is the symbol that is not allowed to be added to that grid
+Q,Q	# e.g Cell 2 has Q symbol, Q blocked
+@,Q	# Cell 3, @ fill, Q block --> Q should be blocked in the 3x3 grid
+,
+,
+Q,Q
+Q,Q
+,Q
+,
+,
+,	# Believed to be incorrect since still in 3x3, so should be blocked
+X,Q
+Q,Q
+X,
+,
+,
+,
+X,
+,
+,
+,
+X,
+,
+,
+,
+10 	# Initial Score
+1	# Number of turns left

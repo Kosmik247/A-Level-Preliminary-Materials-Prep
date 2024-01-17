@@ -107,15 +107,18 @@ class Puzzle():
         """
         try:
             with open(Filename) as f:
+                # First integer value is the number of symbols followed by the symbols
                 NoOfSymbols = int(f.readline().rstrip())
                 for Count in range (1, NoOfSymbols + 1):
                     self.__AllowedSymbols.append(f.readline().rstrip())
+                # Second integer value is the number of patterns followed by the patterns
                 NoOfPatterns = int(f.readline().rstrip())
                 for Count in range(1, NoOfPatterns + 1):
                     Items = f.readline().rstrip().split(",")
                     P = Pattern(Items[0], Items[1])
                     self.__AllowedPatterns.append(P)
                 self.__GridSize = int(f.readline().rstrip())
+                # Second letter is the blocked letter. Hardcoded it in
                 for Count in range (1, self.__GridSize * self.__GridSize + 1):
                     Items = f.readline().rstrip().split(",")
                     if Items[0] == "@":
@@ -131,6 +134,20 @@ class Puzzle():
                 self.__SymbolsLeft = int(f.readline().rstrip())
         except:
             print("Puzzle not loaded")
+    def __SavePuzzle(self):
+        with open("current_game.txt","w") as save_game_file:
+            save_game_file.write(str(len(self.__AllowedSymbols))+"\n")
+            for symbol in self.__AllowedSymbols:
+                save_game_file.write(symbol+"\n")
+            save_game_file.write(str(len(self.__AllowedPatterns)) + "\n")
+            for pattern in self.__AllowedPatterns:
+                save_game_file.write(pattern.GetPatternSequence()+"\n")
+            save_game_file.write(str(self.__GridSize)+"\n")
+            for cell in self.__Grid:
+                if cell.GetSymbol() == "-":
+                    save_game_file.write("," + cell.GetSymbolsNotAllowed() + "\n")
+                else:
+                    save_game_file.write(cell.GetSymbol()+"," + cell.GetSymbolsNotAllowed() + "\n")
 
     def AttemptPuzzle(self):
         """
@@ -145,6 +162,7 @@ class Puzzle():
         """
         Finished = False
         while not Finished:
+            self.__SavePuzzle()
             self.DisplayPuzzle()
             print("Current score: " + str(self.__Score))
             Row = -1
@@ -226,7 +244,6 @@ class Puzzle():
                     for P in self.__AllowedPatterns:
                         CurrentSymbol = self.__GetCell(Row, Column).GetSymbol()
                         if P.MatchesPattern(PatternString, CurrentSymbol):
-                            print(P)
                             self.__GetCell(StartRow, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
@@ -366,7 +383,11 @@ class Cell():
         """
         self._Symbol = ""
         self.__SymbolsNotAllowed = []
-
+    def GetSymbolsNotAllowed(self):
+        if len(self.__SymbolsNotAllowed) == 0:
+            return ""
+        else:
+            return self.__SymbolsNotAllowed[0]
     def GetSymbol(self):
         """
         Function to get the symbol of the current class instance
