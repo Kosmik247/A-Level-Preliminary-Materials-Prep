@@ -93,7 +93,7 @@ class Puzzle():
             L4Pattern = Pattern("L", "**LLLLL**")
             self.__AllowedPatterns.append(L4Pattern)
             self.__AllowedSymbols.append("L")
-
+            self.__AllowedSymbols.append("B")
     def __LoadPuzzle(self, Filename):
         """
         Loads a txt puzzle file from saved files
@@ -105,35 +105,35 @@ class Puzzle():
         -------
         None
         """
-        try:
-            with open(Filename) as f:
-                # First integer value is the number of symbols followed by the symbols
-                NoOfSymbols = int(f.readline().rstrip())
-                for Count in range (1, NoOfSymbols + 1):
-                    self.__AllowedSymbols.append(f.readline().rstrip())
-                # Second integer value is the number of patterns followed by the patterns
-                NoOfPatterns = int(f.readline().rstrip())
-                for Count in range(1, NoOfPatterns + 1):
-                    Items = f.readline().rstrip().split(",")
-                    P = Pattern(Items[0], Items[1])
-                    self.__AllowedPatterns.append(P)
-                self.__GridSize = int(f.readline().rstrip())
-                # Second letter is the blocked letter. Hardcoded it in
-                for Count in range (1, self.__GridSize * self.__GridSize + 1):
-                    Items = f.readline().rstrip().split(",")
-                    if Items[0] == "@":
-                        C = BlockedCell()
-                        self.__Grid.append(C)
-                    else:
-                        C = Cell()
-                        C.ChangeSymbolInCell(Items[0])
-                        for CurrentSymbol in range(1, len(Items)):
-                            C.AddToNotAllowedSymbols(Items[CurrentSymbol])
-                        self.__Grid.append(C)
-                self.__Score = int(f.readline().rstrip())
-                self.__SymbolsLeft = int(f.readline().rstrip())
-        except:
-            print("Puzzle not loaded")
+        #try:
+        with open(Filename) as f:
+            # First integer value is the number of symbols followed by the symbols
+            NoOfSymbols = int(f.readline().rstrip())
+            for Count in range (1, NoOfSymbols + 1):
+                self.__AllowedSymbols.append(f.readline().rstrip())
+            # Second integer value is the number of patterns followed by the patterns
+            NoOfPatterns = int(f.readline().rstrip())
+            for Count in range(1, NoOfPatterns + 1):
+                Items = f.readline().rstrip().split(",")
+                P = Pattern(Items[0], Items[1])
+                self.__AllowedPatterns.append(P)
+            self.__GridSize = int(f.readline().rstrip())
+            # Second letter is the blocked letter. Hardcoded it in
+            for Count in range (1, self.__GridSize * self.__GridSize + 1):
+                Items = f.readline().rstrip().split(",")
+                if Items[0] == "@":
+                    C = BlockedCell()
+                    self.__Grid.append(C)
+                else:
+                    C = Cell()
+                    C.ChangeSymbolInCell(Items[0])
+                    for CurrentSymbol in range(1, len(Items)):
+                        C.AddToNotAllowedSymbols(Items[CurrentSymbol])
+                    self.__Grid.append(C)
+            self.__Score = int(f.readline().rstrip())
+            self.__SymbolsLeft = int(f.readline().rstrip())
+        #except:
+            #print("Puzzle not loaded")
     def __SavePuzzle(self):
         with open("current_game.txt","w") as save_game_file:
             save_game_file.write(str(len(self.__AllowedSymbols))+"\n")
@@ -141,13 +141,16 @@ class Puzzle():
                 save_game_file.write(symbol+"\n")
             save_game_file.write(str(len(self.__AllowedPatterns)) + "\n")
             for pattern in self.__AllowedPatterns:
-                save_game_file.write(pattern.GetPatternSequence()+"\n")
+                save_game_file.write(pattern.GetSymbol() + ","+pattern.GetPatternSequence()+"\n")
             save_game_file.write(str(self.__GridSize)+"\n")
             for cell in self.__Grid:
                 if cell.GetSymbol() == "-":
-                    save_game_file.write("," + cell.GetSymbolsNotAllowed() + "\n")
+                    save_game_file.write("" + "," + ','.join(cell.GetSymbolsNotAllowed()) + "\n")
                 else:
-                    save_game_file.write(cell.GetSymbol()+"," + cell.GetSymbolsNotAllowed() + "\n")
+                    save_game_file.write(cell.GetSymbol() + "," + ','.join(cell.GetSymbolsNotAllowed()) + "\n")
+
+            save_game_file.write(str(self.__Score) + "\n")
+            save_game_file.write(str(self.__SymbolsLeft) + "\n")
 
     def AttemptPuzzle(self):
         """
@@ -184,11 +187,30 @@ class Puzzle():
             Symbol = self.__GetSymbolFromUser()
             self.__SymbolsLeft -= 1
             CurrentCell = self.__GetCell(Row, Column)
-            if CurrentCell.CheckSymbolAllowed(Symbol):
+
+            if CurrentCell.CheckSymbolAllowed(Symbol) and Symbol != "B":
                 CurrentCell.ChangeSymbolInCell(Symbol)
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
+            elif Symbol == "B" and type(CurrentCell) == BlockedCell:
+                self.__Score -= 2
+                Position = self.__GridSize + Column - 1 * (self.__GridSize - Row)
+                self.__Grid[Position] = Cell()
+            elif Symbol == "B" and type(CurrentCell) == Cell:
+                print("That cell is not a blocked cell and does not need to be destroyed.")
+            print("Would you like to revert the move just made? Y/N")
+            revert = input("WARNING: You will lose 3 points: \n")
+
+            if revert.upper() == "Y":
+                self.__Score = 0
+                self.__SymbolsLeft = 0
+                self.__GridSize = 0
+                self.__Grid = []
+                self.__AllowedPatterns = []
+                self.__AllowedSymbols = []
+                self.__LoadPuzzle("current_game.txt")
+                self.__Score -= 3
             if self.__SymbolsLeft == 0:
                 Finished = True
         print()
@@ -332,7 +354,8 @@ class Pattern():
         """
         self.__Symbol = SymbolToUse
         self.__PatternSequence = PatternString
-
+    def GetSymbol(self):
+        return self.__Symbol
     def MatchesPattern(self, PatternString, SymbolPlaced):
         """
         Matches the pattern stored to the scoring patterns
